@@ -4,9 +4,9 @@ frontend:
   phases:
     build:
       commands:
-        - echo "Site estático - nenhuma compilação necessária"
+        - echo "Site estatico - nenhuma compilacao necessaria"
 
   artifacts:
-    baseDirectory: dist
+    baseDirectory: .
     files:
       - '**/*'
