@@ -461,3 +461,44 @@ textarea.form-control { min-height: 108px; padding-top: 12px; resize: none; }
 .screen-link h2 { font-size: 20px; margin: 10px 0 6px; }
 .screen-link p { color: var(--muted); font-size: 14px; min-height: 42px; }
 .screen-link .text-link { display: inline-flex; margin-top: 12px; }
+
+/* Comportamentos e validações */
+[hidden] { display: none !important; }
+.input-error { border-color: var(--red-600) !important; box-shadow: 0 0 0 3px rgba(198,75,75,.12) !important; }
+.field-error { display: block; color: var(--red-600); font-size: 12px; font-weight: 700; margin-top: 6px; }
+.favorite-active { color: var(--red-600); background: var(--red-100); border-color: #f0bcbc; }
+
+.toast {
+  position: fixed; right: 24px; bottom: 24px; z-index: 1000;
+  max-width: 380px; padding: 14px 18px; border-radius: 11px;
+  background: var(--navy-900); color: var(--white); font-weight: 700;
+  box-shadow: 0 16px 35px rgba(7,27,45,.25);
+  opacity: 0; transform: translateY(16px); transition: .25s ease;
+}
+.toast-visible { opacity: 1; transform: translateY(0); }
+.toast-erro { background: #a63838; }
+.toast-info { background: var(--blue-700); }
+
+.empty-results {
+  padding: 42px; border: 1px dashed #b9c9d2; border-radius: 14px;
+  background: var(--white); text-align: center; color: var(--muted);
+}
+.empty-results strong { display: block; color: var(--navy-900); font-size: 18px; margin-bottom: 5px; }
+
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 900; display: grid; place-items: center;
+  background: rgba(7,27,45,.68); padding: 30px;
+}
+.modal-card {
+  width: 500px; max-height: 90vh; overflow: auto; position: relative;
+  background: var(--white); border-radius: 18px; padding: 30px;
+  box-shadow: 0 24px 70px rgba(0,0,0,.3);
+}
+.modal-card > p { color: var(--muted); margin-bottom: 22px; }
+.modal-close {
+  position: absolute; right: 16px; top: 14px; width: 36px; height: 36px;
+  border: 0; border-radius: 9px; background: var(--canvas); color: var(--navy-900);
+  font-size: 23px; cursor: pointer;
+}
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+.modal-card select.form-control { appearance: auto; }

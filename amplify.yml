@@ -7,6 +7,6 @@ frontend:
         - echo "Site estatico - nenhuma compilacao necessaria"
 
   artifacts:
-    baseDirectory: .
+    baseDirectory: dist
     files:
       - '**/*'
