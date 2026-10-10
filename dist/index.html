@@ -2,37 +2,115 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=1180">
-  <meta name="description" content="Telas do protótipo visual Campus Fácil">
-  <title>Campus Fácil — Telas do projeto</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Campus Fácil — locais, serviços e acessibilidade em um só lugar">
+  <title>Campus Fácil</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <header class="site-header">
-    <div class="header-inner">
-      <a class="brand" href="index.html">
+<body class="app-body">
+  <header class="app-header">
+    <div class="app-container app-header-inner">
+      <button class="brand app-brand" type="button" data-route="inicio" aria-label="Ir para o início">
         <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 10 9-6 9 6v9H3z"/><path d="M8 19v-6h8v6M2 21h20"/></svg></span>
-        Campus Fácil
-      </a>
-      <span style="color:#657585;font-size:14px;margin-left:auto">Protótipo visual • Avaliação 05 — CSS</span>
+        <span>Campus Fácil</span>
+      </button>
+      <button class="app-menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" data-menu-toggle><span></span><span></span><span></span></button>
+      <nav class="app-nav" aria-label="Navegação principal" data-main-nav>
+        <button class="app-nav-link active" type="button" data-route="inicio">Início</button>
+        <button class="app-nav-link" type="button" data-route="buscar">Explorar</button>
+        <button class="app-nav-link" type="button" data-route="favoritos">Favoritos</button>
+        <button class="app-nav-link" type="button" data-route="admin">Administração</button>
+      </nav>
+      <div class="app-header-actions"><button class="btn btn-secondary app-login-button" type="button" data-login-open>Entrar</button><button class="avatar app-user-avatar" type="button" data-route="favoritos" aria-label="Abrir perfil" hidden>EA</button></div>
     </div>
   </header>
 
-  <main class="screens-index">
-    <span class="eyebrow">Apresentação das interfaces</span>
-    <h1>Principais telas do Campus Fácil</h1>
-    <p>Selecione uma tela para visualizar o design completo em formato desktop.</p>
+  <main class="app-main">
+    <section class="app-view active" data-view="inicio" aria-labelledby="inicio-titulo">
+      <div class="app-container">
+        <div class="app-hero">
+          <div class="app-hero-copy">
+            <span class="eyebrow">Seu campus mais perto</span>
+            <h1 id="inicio-titulo">Encontre qualquer lugar do campus sem complicação.</h1>
+            <p>Pesquise salas, setores, serviços e rotas acessíveis em uma única plataforma.</p>
+            <form class="app-hero-search" data-global-search novalidate>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+              <label class="sr-only" for="busca-inicial">Pesquisar local ou serviço</label>
+              <input id="busca-inicial" type="search" placeholder="Ex.: biblioteca, secretaria, laboratório..." autocomplete="off">
+              <button class="btn btn-primary" type="submit">Pesquisar</button>
+            </form>
+            <div class="app-hero-notes"><span>✓ Horários atualizados</span><span>✓ Informações de acessibilidade</span></div>
+          </div>
+          <div class="app-hero-map" aria-hidden="true">
+            <svg viewBox="0 0 480 390" fill="none"><path d="M-20 80C78 35 142 116 224 77s121-37 191 20 96 20 120 13M-19 311c80-61 142-35 202-58s100-76 176-34 98 83 163 45" stroke="#2a5878" stroke-width="44"/><path d="M83-30v460M302-30v460" stroke="#174767" stroke-width="8" stroke-dasharray="13 13"/><rect x="48" y="58" width="115" height="76" rx="12" fill="#3d7697"/><rect x="318" y="105" width="112" height="87" rx="12" fill="#336d8d"/><rect x="138" y="253" width="142" height="78" rx="12" fill="#1684b2"/><path d="M211 238v-61h92" stroke="#efb63d" stroke-width="7" stroke-dasharray="10 9"/><circle cx="211" cy="238" r="13" fill="#efb63d"/></svg>
+            <div class="app-map-label"><span class="map-pin-small"></span><strong>Biblioteca Central</strong><small>Bloco A • Térreo</small></div>
+          </div>
+        </div>
 
-    <div class="screen-links">
-      <a class="screen-link" href="home.html"><span class="screen-number">TELA 01</span><h2>Página inicial</h2><p>Busca central, categorias e locais mais procurados.</p><span class="text-link">Abrir tela →</span></a>
-      <a class="screen-link" href="resultados.html"><span class="screen-number">TELA 02</span><h2>Resultados</h2><p>Pesquisa de locais com filtros por categoria e bloco.</p><span class="text-link">Abrir tela →</span></a>
-      <a class="screen-link" href="detalhes.html"><span class="screen-number">TELA 03</span><h2>Detalhes do local</h2><p>Informações, mapa, horários e acessibilidade.</p><span class="text-link">Abrir tela →</span></a>
-      <a class="screen-link" href="login.html"><span class="screen-number">TELA 04</span><h2>Login</h2><p>Acesso para estudantes, servidores e administradores.</p><span class="text-link">Abrir tela →</span></a>
-      <a class="screen-link" href="perfil.html"><span class="screen-number">TELA 05</span><h2>Perfil e favoritos</h2><p>Locais salvos e sugestões de correção enviadas.</p><span class="text-link">Abrir tela →</span></a>
-      <a class="screen-link" href="admin.html"><span class="screen-number">TELA 06</span><h2>Painel administrativo</h2><p>Indicadores, cadastro e gerenciamento dos locais.</p><span class="text-link">Abrir tela →</span></a>
-    </div>
+        <section class="app-section" aria-labelledby="atalhos-titulo">
+          <div class="app-section-heading"><div><span class="eyebrow">Acesso rápido</span><h2 id="atalhos-titulo">O que você procura?</h2></div><button class="text-link" type="button" data-route="buscar">Ver todos os locais →</button></div>
+          <div class="app-category-grid">
+            <button class="app-category-card" type="button" data-category-shortcut="biblioteca"><span class="app-category-icon">📚</span><strong>Bibliotecas</strong><small>Acervos e salas de estudo</small></button>
+            <button class="app-category-card" type="button" data-category-shortcut="administrativo"><span class="app-category-icon green">🏛️</span><strong>Setores</strong><small>Atendimento administrativo</small></button>
+            <button class="app-category-card" type="button" data-category-shortcut="laboratorio"><span class="app-category-icon gold">💻</span><strong>Laboratórios</strong><small>Ensino, pesquisa e informática</small></button>
+            <button class="app-category-card" type="button" data-category-shortcut="alimentacao"><span class="app-category-icon coral">🍽️</span><strong>Alimentação</strong><small>Restaurante e cantinas</small></button>
+          </div>
+        </section>
+
+        <section class="app-section" aria-labelledby="destaques-titulo">
+          <div class="app-section-heading"><div><span class="eyebrow">Mais procurados</span><h2 id="destaques-titulo">Locais em destaque</h2></div></div>
+          <div class="app-place-grid">
+            <article class="app-place-card"><div class="app-place-top"><span class="place-icon">📚</span><span class="status open">Aberto agora</span></div><h3>Biblioteca Central</h3><p>Acervo geral, salas de estudo e orientação para pesquisas.</p><div class="app-place-meta"><span>Bloco A • Térreo</span><span>Até 21h</span></div><button class="btn btn-soft" type="button" data-open-place="biblioteca">Ver detalhes</button></article>
+            <article class="app-place-card"><div class="app-place-top"><span class="place-icon alt">🏛️</span><span class="status open">Aberto agora</span></div><h3>Secretaria Acadêmica</h3><p>Matrículas, documentos e atendimento ao estudante.</p><div class="app-place-meta"><span>Bloco B • Sala 104</span><span>Até 18h</span></div><button class="btn btn-soft" type="button" data-open-place="secretaria">Ver detalhes</button></article>
+            <article class="app-place-card"><div class="app-place-top"><span class="place-icon gold">💻</span><span class="status pending">Abre às 8h</span></div><h3>Laboratório de Informática</h3><p>Computadores, suporte técnico e atividades práticas.</p><div class="app-place-meta"><span>Bloco C • Sala 203</span><span>8h às 18h</span></div><button class="btn btn-soft" type="button" data-open-place="laboratorio">Ver detalhes</button></article>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="app-view" data-view="buscar" aria-labelledby="buscar-titulo" hidden>
+      <div class="app-container app-view-pad">
+        <div class="app-page-heading"><div><span class="eyebrow">Explorar o campus</span><h1 id="buscar-titulo">Locais e serviços</h1><p>Use a busca e os filtros para encontrar o que precisa.</p></div><form class="app-page-search" data-search-form novalidate><label class="sr-only" for="busca-resultados">Pesquisar</label><input id="busca-resultados" type="search" placeholder="Pesquisar local ou serviço..."><button class="btn btn-primary" type="submit">Buscar</button></form></div>
+        <button class="btn btn-secondary app-filter-toggle" type="button" data-filter-toggle aria-expanded="false">☰ Mostrar filtros</button>
+        <div class="app-results-layout">
+          <aside class="app-filter-panel" data-filter-panel><div class="app-filter-title"><strong>Filtros</strong><button type="button" data-clear-filters>Limpar</button></div><div class="form-group"><label for="filtro-categoria">Categoria</label><select class="form-control" id="filtro-categoria"><option value="">Todas</option><option value="biblioteca">Bibliotecas</option><option value="administrativo">Setores administrativos</option><option value="laboratorio">Laboratórios</option><option value="alimentacao">Alimentação</option><option value="servico">Serviços</option></select></div><div class="form-group"><label for="filtro-bloco">Bloco</label><select class="form-control" id="filtro-bloco"><option value="">Todos</option><option value="a">Bloco A</option><option value="b">Bloco B</option><option value="c">Bloco C</option><option value="central">Prédio Central</option></select></div><label class="check-row"><input id="filtro-aberto" type="checkbox"> Aberto agora</label><label class="check-row"><input id="filtro-acessivel" type="checkbox"> Possui rota acessível</label></aside>
+          <div><div class="app-result-toolbar"><strong data-result-count>0 locais encontrados</strong><select id="ordenacao" aria-label="Ordenar resultados"><option value="relevancia">Mais relevantes</option><option value="az">Ordem alfabética</option></select></div><div class="app-result-list" data-result-list></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="app-view" data-view="detalhes" aria-labelledby="detalhe-nome" hidden>
+      <div class="app-container app-view-pad">
+        <button class="app-back-button" type="button" data-route="buscar">← Voltar aos resultados</button>
+        <article class="app-detail-hero"><div class="app-detail-copy"><span class="status open" data-detail-status>Aberto agora</span><h1 id="detalhe-nome" data-detail-name>Biblioteca Central</h1><p class="lead" data-detail-description></p><div class="chips"><span class="chip" data-detail-location></span><span class="chip">Entrada principal</span><span class="chip">Informações verificadas</span></div><div class="app-detail-actions"><button class="btn btn-primary" type="button" data-scroll-map>Como chegar</button><button class="btn btn-secondary" type="button" data-favorite-toggle>♡ Favoritar</button><button class="btn btn-secondary" type="button" data-suggestion-open>Sugerir correção</button></div></div><div class="app-campus-map" id="mapa"><svg viewBox="0 0 500 320" fill="none"><rect width="500" height="320" fill="#dfeaed"/><path d="M-10 78C80 36 130 104 208 76s110-45 170 5 87 38 140 16M-12 243c74-59 127-26 187-48s99-64 172-28 87 80 166 38" stroke="#c2d5db" stroke-width="38"/><path d="M90-20v360M286-20v360" stroke="#b4cbd2" stroke-width="7" stroke-dasharray="10 11"/><rect x="40" y="48" width="115" height="70" rx="9" fill="#8fb5c2"/><rect x="326" y="87" width="113" height="84" rx="9" fill="#9dbec8"/><rect x="135" y="210" width="131" height="71" rx="9" fill="#176b91"/><path d="M201 194v-45h71" stroke="#efb63d" stroke-width="6" stroke-dasharray="9 8"/><circle cx="202" cy="194" r="12" fill="#efb63d"/><circle cx="273" cy="149" r="9" fill="#123b5d"/></svg><span class="app-map-current" data-map-label>Biblioteca Central</span></div></article>
+        <div class="app-detail-grid"><div><section class="info-card"><h2>Informações do local</h2><div class="app-info-grid"><div><small>Localização</small><strong data-info-location></strong></div><div><small>Setor responsável</small><strong data-info-sector></strong></div><div><small>Contato</small><strong data-info-contact></strong></div><div><small>Horário</small><strong data-info-hours></strong></div></div></section><section class="info-card"><h2>Acessibilidade</h2><div class="access-list" data-access-list></div></section></div><aside><div class="info-card side-summary"><h2>Atendimento</h2><p data-detail-hours></p><div class="hours"><div class="hours-row"><span>Segunda a sexta</span><strong>7h — 21h</strong></div><div class="hours-row"><span>Sábado</span><strong>8h — 14h</strong></div><div class="hours-row"><span>Domingo</span><strong>Fechado</strong></div></div><span class="status open">Informação atualizada</span></div></aside></div>
+      </div>
+    </section>
+
+    <section class="app-view" data-view="favoritos" aria-labelledby="favoritos-titulo" hidden>
+      <div class="app-container app-view-pad">
+        <section class="app-profile-header"><div class="profile-avatar" data-profile-initials>EA</div><div><span class="eyebrow">Meu espaço</span><h1 id="favoritos-titulo" data-profile-name>Éverson Alisson</h1><p data-profile-email>Discente • Engenharia de Software</p></div><button class="btn btn-secondary" type="button" data-logout>Sair</button></section>
+        <div class="app-profile-grid"><section><div class="app-section-heading"><div><h2>Meus favoritos</h2><p>Locais salvos para acesso rápido.</p></div><span class="status open" data-favorite-count>0 salvos</span></div><div class="favorite-list" data-favorite-list></div></section><aside><div class="info-card"><h2>Resumo da conta</h2><div class="profile-stats"><div class="stat-box"><strong data-profile-favorites>0</strong><span>Favoritos</span></div><div class="stat-box"><strong>2</strong><span>Sugestões</span></div></div><p class="app-muted">Membro desde setembro de 2026.</p></div><div class="info-card"><h2>Sugestões recentes</h2><div class="suggestion-item"><strong>Horário da biblioteca</strong><span class="status pending">Em análise</span></div><div class="suggestion-item"><strong>Localização da sala 204</strong><span class="status open">Aprovada</span></div></div></aside></div>
+      </div>
+    </section>
+
+    <section class="app-view app-admin-view" data-view="admin" aria-labelledby="admin-titulo" hidden>
+      <div class="app-container app-view-pad">
+        <div class="app-page-heading"><div><span class="eyebrow">Gestão institucional</span><h1 id="admin-titulo">Painel administrativo</h1><p>Acompanhe e gerencie as informações do campus.</p></div><button class="btn btn-primary" type="button" data-add-local>+ Adicionar local</button></div>
+        <div class="app-stats-grid"><article><span>📍</span><div><strong>81</strong><small>Locais cadastrados</small></div></article><article><span>🧭</span><div><strong>24</strong><small>Serviços ativos</small></div></article><article><span>💬</span><div><strong>7</strong><small>Sugestões pendentes</small></div></article><article><span>⚠️</span><div><strong>2</strong><small>Indisponíveis</small></div></article></div>
+        <section class="app-admin-card"><div class="app-admin-card-head"><div><h2>Locais cadastrados</h2><p>Atualize os registros publicados no aplicativo.</p></div><label><span class="sr-only">Buscar na administração</span><input type="search" placeholder="Buscar local..." data-admin-search></label></div><div class="app-table-wrap"><table class="data-table" data-admin-table><thead><tr><th>Local</th><th>Categoria</th><th>Localização</th><th>Responsável</th><th>Status</th><th>Ações</th></tr></thead><tbody><tr><td><strong>Biblioteca Central</strong><small>Atualizado hoje, 09:42</small></td><td>Biblioteca</td><td>Bloco A • Térreo</td><td>Ana Ferreira</td><td><span class="status open">Ativo</span></td><td><button class="table-btn" type="button" data-admin-edit>✎</button><button class="table-btn danger" type="button" data-admin-toggle>⊘</button></td></tr><tr><td><strong>Secretaria Acadêmica</strong><small>Atualizado ontem, 16:20</small></td><td>Administrativo</td><td>Bloco B • Sala 104</td><td>Carlos Lima</td><td><span class="status open">Ativo</span></td><td><button class="table-btn" type="button" data-admin-edit>✎</button><button class="table-btn danger" type="button" data-admin-toggle>⊘</button></td></tr><tr><td><strong>Laboratório de Informática</strong><small>Atualizado em 09/10/2026</small></td><td>Laboratório</td><td>Bloco C • Sala 203</td><td>João Alves</td><td><span class="status open">Ativo</span></td><td><button class="table-btn" type="button" data-admin-edit>✎</button><button class="table-btn danger" type="button" data-admin-toggle>⊘</button></td></tr><tr><td><strong>Restaurante Universitário</strong><small>Atualizado em 08/10/2026</small></td><td>Alimentação</td><td>Prédio Central</td><td>Marina Souza</td><td><span class="status pending">Manutenção</span></td><td><button class="table-btn" type="button" data-admin-edit>✎</button><button class="table-btn danger" type="button" data-admin-toggle>⊘</button></td></tr></tbody></table></div></section>
+      </div>
+    </section>
   </main>
+
+  <footer class="app-footer"><div class="app-container"><span class="brand"><span class="brand-mark">⌂</span>Campus Fácil</span><p>Projeto acadêmico • Desenvolvimento Web</p></div></footer>
+
+  <div class="modal-backdrop app-modal" data-login-modal hidden><section class="app-modal-card" role="dialog" aria-modal="true" aria-labelledby="login-titulo"><button class="modal-close" type="button" data-modal-close aria-label="Fechar">×</button><span class="eyebrow">Bem-vindo de volta</span><h2 id="login-titulo">Entre na sua conta</h2><p>Use seu e-mail acadêmico ou uma conta Google.</p><form data-login-form novalidate><div class="form-group"><label for="login-email">E-mail</label><input class="form-control" id="login-email" type="email" autocomplete="email" placeholder="seuemail@campus.edu.br"></div><div class="form-group"><label for="login-senha">Senha</label><input class="form-control" id="login-senha" type="password" autocomplete="current-password" placeholder="Digite sua senha"></div><button class="btn btn-primary btn-block" type="submit">Entrar</button></form><div class="divider">ou acesse com</div><div class="google-button-container" id="google-signin-button" aria-label="Entrar com o Google"></div><div class="google-login-result" id="google-login-result" role="status" hidden></div></section></div>
+
+  <div class="modal-backdrop app-modal" data-suggestion-modal hidden><section class="app-modal-card" role="dialog" aria-modal="true" aria-labelledby="sugestao-titulo"><button class="modal-close" type="button" data-suggestion-close aria-label="Fechar">×</button><span class="eyebrow">Colabore com o campus</span><h2 id="sugestao-titulo">Sugerir uma correção</h2><p>Explique qual informação precisa ser atualizada.</p><form data-suggestion-form novalidate><div class="form-group"><label for="tipo-correcao">Tipo da correção</label><select class="form-control" id="tipo-correcao"><option value="">Selecione</option><option>Localização</option><option>Horário</option><option>Contato</option><option>Acessibilidade</option><option>Outra informação</option></select></div><div class="form-group"><label for="descricao-correcao">Descrição</label><textarea class="form-control" id="descricao-correcao" placeholder="Descreva a correção..."></textarea></div><button class="btn btn-primary btn-block" type="submit">Enviar sugestão</button></form></section></div>
+
   <script src="script.js"></script>
+  <script src="https://accounts.google.com/gsi/client?hl=pt-BR" async defer onload="inicializarGoogleSignIn()"></script>
 </body>
 </html>
