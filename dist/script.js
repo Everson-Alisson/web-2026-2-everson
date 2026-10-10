@@ -11,6 +11,78 @@ document.addEventListener('DOMContentLoaded', () => {
   iniciarAdministracao();
 });
 
+const GOOGLE_CLIENT_ID = '356291206967-sf8r4u443du72kgvurd0f7dhmre0qdaf.apps.googleusercontent.com';
+
+/* Callback global chamado pelo Google Identity Services após o login.
+   O JWT é exibido no Console apenas para a demonstração acadêmica. */
+window.handleGoogleCredential = function handleGoogleCredential(response) {
+  const resultado = document.querySelector('#google-login-result');
+
+  if (!response || !response.credential) {
+    mostrarMensagem('O Google não retornou o token de autenticação.', 'erro');
+    return;
+  }
+
+  try {
+    const payload = decodificarPayloadJwt(response.credential);
+    const emissorGoogle = payload.iss === 'https://accounts.google.com' || payload.iss === 'accounts.google.com';
+    const destinatarioCorreto = payload.aud === GOOGLE_CLIENT_ID;
+    const tokenNaoExpirado = Number(payload.exp) * 1000 > Date.now();
+
+    console.group('Campus Fácil — autenticação federada Google');
+    console.log('GOOGLE_ID_TOKEN_JWT:', response.credential);
+    console.log('Payload decodificado:', payload);
+    console.table({
+      emissor: payload.iss,
+      audiencia: payload.aud,
+      email: payload.email,
+      expiracao: new Date(Number(payload.exp) * 1000).toLocaleString('pt-BR')
+    });
+    console.groupEnd();
+
+    if (!emissorGoogle || !destinatarioCorreto || !tokenNaoExpirado) {
+      throw new Error('Os dados básicos do token recebido não correspondem ao aplicativo.');
+    }
+
+    localStorage.setItem('campusFacilUsuario', payload.email || payload.name || 'Usuário Google');
+    sessionStorage.setItem('campusFacilGooglePerfil', JSON.stringify({
+      nome: payload.name || '',
+      email: payload.email || '',
+      emissor: payload.iss || ''
+    }));
+
+    if (resultado) {
+      resultado.hidden = false;
+      resultado.innerHTML = `
+        <strong>Login com Google realizado!</strong>
+        <span>${escaparHtml(payload.name || payload.email || 'Usuário autenticado')}</span>
+        <small>O JWT foi exibido no Console do navegador para a atividade.</small>
+        <a class="btn btn-primary btn-block" href="perfil.html">Continuar para o perfil</a>`;
+    }
+
+    mostrarMensagem('Conta Google autenticada com sucesso.');
+  } catch (erro) {
+    console.error('Falha ao processar o token do Google:', erro);
+    mostrarMensagem('Não foi possível validar os dados do login Google.', 'erro');
+  }
+};
+
+function decodificarPayloadJwt(token) {
+  const parte = token.split('.')[1];
+  if (!parte) throw new Error('Token JWT inválido.');
+
+  const base64 = parte.replace(/-/g, '+').replace(/_/g, '/');
+  const preenchimento = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=');
+  const bytes = Uint8Array.from(atob(preenchimento), caractere => caractere.charCodeAt(0));
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
+function escaparHtml(valor) {
+  const elemento = document.createElement('span');
+  elemento.textContent = String(valor);
+  return elemento.innerHTML;
+}
+
 function mostrarMensagem(texto, tipo = 'sucesso') {
   const anterior = document.querySelector('.toast');
   if (anterior) anterior.remove();

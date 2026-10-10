@@ -385,6 +385,17 @@ textarea.form-control { min-height: 108px; padding-top: 12px; resize: none; }
 .divider::before, .divider::after { content:""; flex:1; height:1px; background:var(--line); }
 .signup-note { text-align: center; color: var(--muted); font-size: 14px; }
 .signup-note a { color: var(--blue-700); font-weight: 800; }
+.google-button-container { width: 100%; min-height: 44px; display: flex; justify-content: center; }
+.google-button-container > div { width: 100%; }
+.google-login-result {
+  margin: 18px 0 20px; padding: 15px; border: 1px solid #b9dfcc;
+  border-radius: 12px; background: #f2faf6; color: var(--green-700);
+}
+.google-login-result strong, .google-login-result span, .google-login-result small { display: block; }
+.google-login-result strong { margin-bottom: 4px; color: var(--navy-900); }
+.google-login-result span { font-size: 14px; font-weight: 750; }
+.google-login-result small { margin: 5px 0 13px; color: var(--muted); line-height: 1.45; }
+.google-login-result .btn { color: var(--white); }
 
 /* Perfil */
 .profile-header { background: var(--navy-900); color: var(--white); border-radius: 18px; padding: 28px 32px; display: flex; align-items: center; gap: 20px; }
