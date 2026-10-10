@@ -1,42 +1,42 @@
-# Campus Fácil — Protótipo navegável
+# Campus Fácil — aplicação responsiva
 
 Projeto acadêmico desenvolvido com HTML, CSS e JavaScript puro para as atividades de Desenvolvimento Web.
 
-## Como abrir
+## Estrutura atual
 
-Abra `dist/index.html` no navegador. Essa página apresenta os links para as seis telas:
+A interface está concentrada em uma única página responsiva: `dist/index.html`.
 
-1. Página inicial
-2. Resultados da pesquisa
-3. Detalhes do local
-4. Login
-5. Perfil e favoritos
-6. Painel administrativo
+As áreas Início, Explorar, Detalhes, Favoritos e Administração são abertas sem recarregar a aplicação. Os arquivos HTML antigos continuam no projeto apenas para redirecionar links já existentes para a seção correspondente da página principal.
 
-## Comportamentos implementados
+## Recursos do protótipo
 
-- Navegação entre todas as páginas;
-- Busca com validação e envio do termo pela URL;
-- Pesquisa e filtros dinâmicos na página de resultados;
-- Validação de e-mail e senha no formulário de login;
+- Navegação em página única por menu e rotas com `#`;
+- Pesquisa e filtros de locais;
+- Exibição dinâmica de detalhes;
+- Favoritos salvos no navegador;
+- Validação dos formulários;
+- Painel administrativo demonstrativo;
+- Login tradicional demonstrativo;
 - Login federado com Google Identity Services;
-- Exibição do ID token JWT no Console do navegador para demonstração acadêmica;
-- Favoritar local usando `localStorage`;
-- Formulário de sugestão de correção com validação;
-- Remoção de favoritos com confirmação;
-- Busca na tabela administrativa;
-- Cadastro demonstrativo de local;
-- Ativação e desativação demonstrativa de registros;
-- Mensagens de sucesso, erro e informação.
+- Layout adaptado para computador, tablet e celular.
 
-O projeto foi preparado para apresentação em desktop, com largura mínima de 1180 px. As operações são demonstrativas e executadas no navegador, sem banco de dados ou backend.
+## Arquivos publicados
+
+O conteúdo publicado pelo site está na pasta `dist`:
+
+- `index.html`: estrutura da aplicação;
+- `styles.css`: estilos e regras responsivas;
+- `script.js`: navegação e interações;
+- `favicon.svg`: ícone do site.
+
+O arquivo `amplify.yml`, na raiz do repositório, configura o AWS Amplify para publicar a pasta `dist`.
 
 ## Teste da autenticação Google
 
-1. Publique a pasta `dist` pelo AWS Amplify.
-2. Abra `https://www.everson.dunga.web.ufersa.dev.br/login.html`.
+1. Publique o repositório pelo AWS Amplify.
+2. Abra `https://www.everson.dunga.web.ufersa.dev.br/`.
 3. Abra as Ferramentas do desenvolvedor (`F12`) e selecione a aba **Console**.
-4. Clique em **Entrar com o Google** e use uma conta cadastrada como usuário de teste no Google Auth Platform.
+4. Clique em **Entrar** e use **Continuar com Google** com uma conta cadastrada como usuário de teste no Google Auth Platform.
 5. Após a autenticação, procure no Console por `GOOGLE_ID_TOKEN_JWT:`.
 
 O token é exibido apenas para a atividade. O Client Secret não é utilizado nem deve ser incluído no projeto. Em uma aplicação real, o ID token precisa ser enviado ao backend e validado criptograficamente antes de criar uma sessão.
