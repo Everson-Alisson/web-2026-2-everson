@@ -10,3 +10,6 @@ frontend:
     baseDirectory: dist
     files:
       - '**/*'
+
+  cache:
+    paths: []
