@@ -8,6 +8,8 @@ A interface está concentrada em uma única página responsiva: `dist/index.html
 
 As áreas Início, Explorar, Detalhes, Favoritos e Administração são abertas sem recarregar a aplicação. Os arquivos HTML antigos continuam no projeto apenas para redirecionar links já existentes para a seção correspondente da página principal.
 
+Ao acessar o site sem uma sessão autenticada, a tela de login ocupa toda a página. O menu e o conteúdo da aplicação somente são liberados depois do login tradicional ou da autenticação pelo Google. A sessão permanece ativa durante a aba atual do navegador; o botão **Sair** encerra a sessão e retorna ao login.
+
 ## Recursos do protótipo
 
 - Navegação em página única por menu e rotas com `#`;
@@ -18,6 +20,7 @@ As áreas Início, Explorar, Detalhes, Favoritos e Administração são abertas 
 - Painel administrativo demonstrativo;
 - Login tradicional demonstrativo;
 - Login federado com Google Identity Services;
+- Controle de acesso às telas enquanto o usuário não estiver autenticado;
 - Layout adaptado para computador, tablet e celular.
 
 ## Arquivos publicados
