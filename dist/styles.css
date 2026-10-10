@@ -647,6 +647,63 @@ button.text-link { border: 0; background: transparent; cursor: pointer; }
 .app-modal-card h2 { padding-right: 35px; }
 .app-modal-card .google-button-container { min-height: 44px; }
 
+/* Tela inicial de autenticação */
+body.auth-required .app-header,
+body.auth-required .app-main,
+body.auth-required .app-footer { display: none; }
+.app-auth-screen {
+  position: fixed; inset: 0; z-index: 1000; overflow-y: auto;
+  display: grid; place-items: center; padding: 28px;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(22,132,178,.2), transparent 31%),
+    radial-gradient(circle at 88% 88%, rgba(239,182,61,.16), transparent 28%),
+    #071b2d;
+}
+.app-auth-shell {
+  width: min(1040px, 100%); min-height: 620px; display: grid;
+  grid-template-columns: 1.05fr .95fr; overflow: hidden;
+  border: 1px solid rgba(255,255,255,.12); border-radius: 26px;
+  background: var(--white); box-shadow: 0 34px 90px rgba(0,0,0,.38);
+}
+.app-auth-intro {
+  position: relative; display: flex; flex-direction: column; justify-content: space-between;
+  min-width: 0; padding: 45px; color: var(--white); overflow: hidden;
+  background: linear-gradient(145deg, #0a2b45 0%, #0d5273 100%);
+}
+.app-auth-intro::before,
+.app-auth-intro::after { content: ''; position: absolute; border-radius: 50%; pointer-events: none; }
+.app-auth-intro::before { width: 330px; height: 330px; right: -150px; top: -100px; border: 55px solid rgba(255,255,255,.055); }
+.app-auth-intro::after { width: 260px; height: 260px; left: -150px; bottom: -130px; background: rgba(239,182,61,.11); }
+.app-auth-brand { position: relative; z-index: 1; color: var(--white); }
+.app-auth-message { position: relative; z-index: 1; max-width: 455px; }
+.app-auth-message .eyebrow { color: #91dced; }
+.app-auth-message h1 { margin: 11px 0 18px; color: var(--white); font-size: clamp(37px, 4vw, 50px); line-height: 1.07; }
+.app-auth-message > p { margin: 0; color: #c7dce7; font-size: 17px; line-height: 1.65; }
+.app-auth-benefits { display: grid; gap: 13px; margin-top: 30px; color: #e0edf3; font-size: 14px; font-weight: 650; }
+.app-auth-benefits span { display: flex; align-items: center; gap: 10px; }
+.app-auth-benefits b { width: 25px; height: 25px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 50%; background: rgba(132,221,238,.16); color: #9ee6f4; }
+.app-auth-intro > small { position: relative; z-index: 1; color: #93afbf; }
+.app-auth-form-pane { display: grid; place-items: center; padding: 44px; background: #f8fafb; }
+.app-auth-card { width: min(390px, 100%); max-height: none; padding: 0; border-radius: 0; box-shadow: none; background: transparent; }
+.app-auth-card h2 { margin: 8px 0; font-size: 32px; }
+.app-auth-card > p { margin: 0 0 27px; }
+.app-auth-card .modal-close { right: 0; top: 0; }
+body.auth-required .app-auth-card .modal-close { display: none; }
+.app-auth-card .divider { margin-block: 22px; }
+.app-auth-card .google-button-container { width: 100%; display: flex; justify-content: center; }
+.app-auth-security { display: block; margin-top: 19px; color: var(--muted); text-align: center; line-height: 1.45; }
+
+@media (max-width: 780px) {
+  .app-auth-screen { place-items: start center; padding: 16px; }
+  .app-auth-shell { min-height: 0; grid-template-columns: 1fr; border-radius: 20px; }
+  .app-auth-intro { min-height: 245px; padding: 28px; }
+  .app-auth-message { margin-top: 35px; }
+  .app-auth-message h1 { max-width: 520px; font-size: 34px; }
+  .app-auth-message > p { font-size: 15px; }
+  .app-auth-benefits, .app-auth-intro > small { display: none; }
+  .app-auth-form-pane { padding: 34px 28px; }
+}
+
 @media (max-width: 980px) {
   .app-container { width: min(100% - 34px, 860px); }
   .app-menu-toggle { display: block; }
@@ -724,4 +781,12 @@ button.text-link { border: 0; background: transparent; cursor: pointer; }
 @media (max-width: 390px) {
   .app-brand > span:last-child { display: none; }
   .app-category-grid { grid-template-columns: 1fr; }
+  .app-auth-screen { padding: 0; background: #f8fafb; }
+  .app-auth-shell { min-height: 100vh; border: 0; border-radius: 0; }
+  .app-auth-intro { min-height: 205px; padding: 23px 20px; }
+  .app-auth-message { margin-top: 23px; }
+  .app-auth-message h1 { font-size: 29px; }
+  .app-auth-message > p { display: none; }
+  .app-auth-form-pane { padding: 29px 20px 38px; }
+  .app-auth-card h2 { font-size: 28px; }
 }

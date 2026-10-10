@@ -45,6 +45,12 @@ function iniciarRotas() {
 }
 
 function aplicarRotaInicial() {
+  if (!obterUsuario()) {
+    exigirAutenticacao();
+    return;
+  }
+
+  liberarAplicacao();
   const rota = location.hash.replace('#', '') || 'inicio';
   if (rota === 'login') {
     exibirView('inicio');
@@ -55,6 +61,10 @@ function aplicarRotaInicial() {
 }
 
 function navegar(rota) {
+  if (!obterUsuario()) {
+    exigirAutenticacao();
+    return;
+  }
   if (rota === 'login') {
     abrirLogin();
     return;
@@ -259,19 +269,25 @@ function iniciarLogin() {
     if (!valido) return mostrarMensagem('Revise os campos destacados.', 'erro');
     const nome = email.value.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, letra => letra.toUpperCase());
     salvarUsuario({ nome, email: email.value.trim(), emissor: 'Login acadêmico' });
-    fecharLogin();
-    navegar('favoritos');
+    event.currentTarget.reset();
+    concluirAutenticacao();
     mostrarMensagem('Login realizado com sucesso.');
   });
   document.querySelector('[data-logout]')?.addEventListener('click', () => {
     localStorage.removeItem('campusFacilPerfil');
+    sessionStorage.removeItem('campusFacilSessao');
+    window.google?.accounts?.id?.disableAutoSelect();
     atualizarUsuario();
-    navegar('inicio');
-    mostrarMensagem('Você saiu da sua conta.', 'info');
+    exigirAutenticacao();
+    mostrarMensagem('Sessão encerrada. Entre novamente para continuar.', 'info');
   });
 }
 
 function abrirLogin() {
+  if (!obterUsuario()) {
+    exigirAutenticacao();
+    return;
+  }
   const modal = document.querySelector('[data-login-modal]');
   modal.hidden = false;
   document.body.classList.add('modal-open');
@@ -280,9 +296,35 @@ function abrirLogin() {
 }
 
 function fecharLogin() {
+  if (!obterUsuario()) {
+    exigirAutenticacao();
+    return;
+  }
   document.querySelector('[data-login-modal]').hidden = true;
   document.body.classList.remove('modal-open');
   if (location.hash === '#login') history.replaceState(null, '', '#inicio');
+}
+
+function exigirAutenticacao() {
+  const telaLogin = document.querySelector('[data-login-modal]');
+  document.body.classList.add('auth-required', 'modal-open');
+  telaLogin.hidden = false;
+  if (location.hash !== '#login') history.replaceState(null, '', '#login');
+  setTimeout(() => {
+    renderizarBotaoGoogle();
+    telaLogin.querySelector('input')?.focus();
+  }, 60);
+}
+
+function liberarAplicacao() {
+  document.body.classList.remove('auth-required', 'modal-open');
+  document.querySelector('[data-login-modal]').hidden = true;
+}
+
+function concluirAutenticacao() {
+  liberarAplicacao();
+  history.replaceState(null, '', '#inicio');
+  exibirView('inicio');
 }
 
 window.inicializarGoogleSignIn = function inicializarGoogleSignIn() {
@@ -314,9 +356,7 @@ window.handleGoogleCredential = function handleGoogleCredential(response) {
     console.groupEnd();
 
     salvarUsuario({ nome: payload.name || 'Usuário Google', email: payload.email || '', emissor: payload.iss });
-    const resultado = document.querySelector('#google-login-result');
-    resultado.hidden = false;
-    resultado.innerHTML = `<strong>Login com Google realizado!</strong><span>${escaparHtml(payload.name || payload.email)}</span><small>O JWT foi exibido no Console do navegador.</small><button class="btn btn-primary btn-block" type="button" data-login-continue>Continuar no aplicativo</button>`;
+    concluirAutenticacao();
     mostrarMensagem('Conta Google autenticada com sucesso.');
   } catch (erro) {
     console.error('Falha ao processar o token do Google:', erro);
@@ -333,12 +373,12 @@ function decodificarPayloadJwt(token) {
 }
 
 function salvarUsuario(perfil) {
-  localStorage.setItem('campusFacilPerfil', JSON.stringify(perfil));
+  sessionStorage.setItem('campusFacilSessao', JSON.stringify(perfil));
   atualizarUsuario();
 }
 
 function obterUsuario() {
-  try { return JSON.parse(localStorage.getItem('campusFacilPerfil')); } catch { return null; }
+  try { return JSON.parse(sessionStorage.getItem('campusFacilSessao')); } catch { return null; }
 }
 
 function atualizarUsuario() {
