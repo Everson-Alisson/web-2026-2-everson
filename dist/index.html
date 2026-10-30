@@ -19,6 +19,7 @@
       <nav class="app-nav" aria-label="Navegação principal" data-main-nav>
         <button class="app-nav-link active" type="button" data-route="inicio">Início</button>
         <button class="app-nav-link" type="button" data-route="buscar">Explorar</button>
+        <button class="app-nav-link" type="button" data-route="chat">Assistente IA</button>
         <button class="app-nav-link" type="button" data-route="favoritos">Favoritos</button>
         <button class="app-nav-link" type="button" data-route="admin">Administração</button>
       </nav>
@@ -95,6 +96,26 @@
       </div>
     </section>
 
+    <section class="app-view app-chat-view" data-view="chat" aria-labelledby="chat-titulo" hidden>
+      <div class="app-container app-view-pad">
+        <div class="app-page-heading chat-heading">
+          <div><span class="eyebrow">Gemini via AWS</span><h1 id="chat-titulo">Assistente do Campus</h1><p>Converse com a inteligência artificial por uma conexão WebSocket autenticada.</p></div>
+          <span class="chat-connection disconnected" data-chat-status><i></i> Desconectado</span>
+        </div>
+        <section class="chat-card" aria-label="Chat com o assistente">
+          <div class="chat-messages" data-chat-messages aria-live="polite">
+            <article class="chat-message assistant"><span class="chat-avatar">IA</span><div><strong>Assistente do Campus</strong><p>Olá! Faça uma pergunta sobre estudos, serviços ou informações do campus.</p></div></article>
+          </div>
+          <form class="chat-form" data-chat-form>
+            <label class="sr-only" for="chat-pergunta">Digite sua pergunta</label>
+            <input id="chat-pergunta" type="text" maxlength="800" placeholder="Digite sua pergunta..." autocomplete="off" required>
+            <button class="btn btn-primary" type="submit" data-chat-send>Enviar</button>
+          </form>
+          <small class="chat-technical">A mensagem percorre: Frontend → API Gateway WebSocket → Lambda → Gemini → WebSocket.</small>
+        </section>
+      </div>
+    </section>
+
     <section class="app-view app-admin-view" data-view="admin" aria-labelledby="admin-titulo" hidden>
       <div class="app-container app-view-pad">
         <div class="app-page-heading"><div><span class="eyebrow">Gestão institucional</span><h1 id="admin-titulo">Painel administrativo</h1><p>Acompanhe e gerencie as informações do campus.</p></div><button class="btn btn-primary" type="button" data-add-local>+ Adicionar local</button></div>
@@ -127,12 +148,10 @@
           <form data-login-form novalidate>
             <div class="form-group"><label for="login-email">E-mail</label><input class="form-control" id="login-email" type="email" autocomplete="email" placeholder="seuemail@campus.edu.br"></div>
             <div class="form-group"><label for="login-senha">Senha</label><input class="form-control" id="login-senha" type="password" autocomplete="current-password" placeholder="Digite sua senha"></div>
-            <button class="btn btn-primary btn-block" type="submit">Entrar</button>
+            <button class="btn btn-primary btn-block" type="submit" data-login-submit>Entrar com Amazon Cognito</button>
           </form>
-          <div class="divider">ou acesse com</div>
-          <div class="google-button-container" id="google-signin-button" aria-label="Entrar com o Google"></div>
-          <div class="google-login-result" id="google-login-result" role="status" hidden></div>
-          <small class="app-auth-security">🔒 Seus dados de acesso são usados apenas para autenticação.</small>
+          <div class="cognito-login-badge"><strong>Amazon Cognito</strong><span>O acesso gera tokens JWT para autenticar o WebSocket.</span></div>
+          <small class="app-auth-security">🔒 O token de acesso fica somente na sessão desta aba.</small>
         </div>
       </div>
     </section>
@@ -140,7 +159,7 @@
 
   <div class="modal-backdrop app-modal" data-suggestion-modal hidden><section class="app-modal-card" role="dialog" aria-modal="true" aria-labelledby="sugestao-titulo"><button class="modal-close" type="button" data-suggestion-close aria-label="Fechar">×</button><span class="eyebrow">Colabore com o campus</span><h2 id="sugestao-titulo">Sugerir uma correção</h2><p>Explique qual informação precisa ser atualizada.</p><form data-suggestion-form novalidate><div class="form-group"><label for="tipo-correcao">Tipo da correção</label><select class="form-control" id="tipo-correcao"><option value="">Selecione</option><option>Localização</option><option>Horário</option><option>Contato</option><option>Acessibilidade</option><option>Outra informação</option></select></div><div class="form-group"><label for="descricao-correcao">Descrição</label><textarea class="form-control" id="descricao-correcao" placeholder="Descreva a correção..."></textarea></div><button class="btn btn-primary btn-block" type="submit">Enviar sugestão</button></form></section></div>
 
+  <script src="config.js"></script>
   <script src="script.js"></script>
-  <script src="https://accounts.google.com/gsi/client?hl=pt-BR" async defer onload="inicializarGoogleSignIn()"></script>
 </body>
 </html>

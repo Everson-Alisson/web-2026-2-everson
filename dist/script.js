@@ -1,6 +1,6 @@
-/* Campus Fácil — aplicação de página única, responsiva e sem backend. */
+/* Campus Fácil — Cognito + API Gateway WebSocket + Lambda + Gemini. */
 
-const GOOGLE_CLIENT_ID = '356291206967-sf8r4u443du72kgvurd0f7dhmre0qdaf.apps.googleusercontent.com';
+const CONFIG = window.CAMPUS_CONFIG || {};
 
 const locais = [
   { id: 'biblioteca', nome: 'Biblioteca Central', categoria: 'biblioteca', categoriaNome: 'Biblioteca', bloco: 'a', localizacao: 'Bloco A • Térreo', descricao: 'Acervo geral, espaços de estudo, empréstimos e orientação para pesquisas acadêmicas.', horario: 'Seg–Sex, 7h às 21h', status: 'Aberto agora', statusClasse: 'open', aberto: true, acessivel: true, setor: 'Coordenação de Bibliotecas', contato: 'biblioteca@campus.edu.br', icone: '📚', acessibilidade: ['Entrada com rampa', 'Banheiro acessível', 'Balcão rebaixado', 'Rota sem degraus'] },
@@ -12,7 +12,9 @@ const locais = [
 ];
 
 let localAtual = 'biblioteca';
-let googlePronto = false;
+let socketChat = null;
+let reconexaoChat = null;
+let encerramentoIntencional = false;
 
 document.addEventListener('DOMContentLoaded', () => {
   iniciarRotas();
@@ -21,11 +23,13 @@ document.addEventListener('DOMContentLoaded', () => {
   iniciarDetalhes();
   iniciarFavoritos();
   iniciarLogin();
+  iniciarChat();
   iniciarSugestoes();
   iniciarAdministracao();
   atualizarUsuario();
   renderizarResultados();
   aplicarRotaInicial();
+  if (obterUsuario()) conectarWebSocket();
 });
 
 function iniciarRotas() {
@@ -57,7 +61,7 @@ function aplicarRotaInicial() {
     abrirLogin();
     return;
   }
-  exibirView(['inicio', 'buscar', 'detalhes', 'favoritos', 'admin'].includes(rota) ? rota : 'inicio');
+  exibirView(['inicio', 'buscar', 'detalhes', 'chat', 'favoritos', 'admin'].includes(rota) ? rota : 'inicio');
 }
 
 function navegar(rota) {
@@ -85,6 +89,7 @@ function exibirView(rota) {
   const menu = document.querySelector('[data-menu-toggle]');
   menu?.setAttribute('aria-expanded', 'false');
   if (rota === 'favoritos') renderizarFavoritos();
+  if (rota === 'chat') conectarWebSocket();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -257,30 +262,110 @@ function iniciarLogin() {
   document.querySelector('[data-login-open]')?.addEventListener('click', abrirLogin);
   document.querySelector('[data-modal-close]')?.addEventListener('click', fecharLogin);
   document.querySelector('[data-login-modal]')?.addEventListener('click', event => { if (event.target === event.currentTarget) fecharLogin(); });
-  document.querySelector('[data-login-modal]')?.addEventListener('click', event => { if (event.target.closest('[data-login-continue]')) fecharLogin(); });
-  document.querySelector('[data-login-form]')?.addEventListener('submit', event => {
+  document.querySelector('[data-login-form]')?.addEventListener('submit', async event => {
     event.preventDefault();
     const email = document.querySelector('#login-email');
     const senha = document.querySelector('#login-senha');
+    const botao = document.querySelector('[data-login-submit]');
     limparErros(event.currentTarget);
     let valido = true;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) { adicionarErro(email, 'Informe um e-mail válido.'); valido = false; }
-    if (senha.value.length < 6) { adicionarErro(senha, 'A senha deve ter pelo menos 6 caracteres.'); valido = false; }
+    if (senha.value.length < 8) { adicionarErro(senha, 'A senha deve ter pelo menos 8 caracteres.'); valido = false; }
     if (!valido) return mostrarMensagem('Revise os campos destacados.', 'erro');
-    const nome = email.value.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, letra => letra.toUpperCase());
-    salvarUsuario({ nome, email: email.value.trim(), emissor: 'Login acadêmico' });
-    event.currentTarget.reset();
-    concluirAutenticacao();
-    mostrarMensagem('Login realizado com sucesso.');
+    botao.disabled = true;
+    botao.textContent = 'Autenticando...';
+    try {
+      const resultado = await autenticarNoCognito(email.value.trim(), senha.value);
+      const payload = decodificarPayloadJwt(resultado.IdToken);
+      const nomePadrao = email.value.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, letra => letra.toUpperCase());
+      salvarTokensCognito(resultado);
+      salvarUsuario({
+        nome: payload.name || payload['cognito:username'] || nomePadrao,
+        email: payload.email || email.value.trim(),
+        emissor: 'Amazon Cognito'
+      });
+      console.group('Campus Fácil — autenticação Amazon Cognito');
+      console.log('COGNITO_ACCESS_TOKEN_JWT:', resultado.AccessToken);
+      console.log('COGNITO_ID_TOKEN_JWT:', resultado.IdToken);
+      console.log('Payload do ID token:', payload);
+      console.groupEnd();
+      event.currentTarget.reset();
+      concluirAutenticacao();
+      mostrarMensagem('Autenticação Cognito concluída com sucesso.');
+    } catch (erro) {
+      console.error('Falha no login Cognito:', erro);
+      mostrarMensagem(traduzirErroCognito(erro), 'erro');
+    } finally {
+      botao.disabled = false;
+      botao.textContent = 'Entrar com Amazon Cognito';
+    }
   });
   document.querySelector('[data-logout]')?.addEventListener('click', () => {
-    localStorage.removeItem('campusFacilPerfil');
-    sessionStorage.removeItem('campusFacilSessao');
-    window.google?.accounts?.id?.disableAutoSelect();
+    encerrarWebSocket();
+    limparSessaoCognito();
     atualizarUsuario();
     exigirAutenticacao();
     mostrarMensagem('Sessão encerrada. Entre novamente para continuar.', 'info');
   });
+}
+
+async function autenticarNoCognito(usuario, senha) {
+  validarConfiguracao();
+  let resposta = await chamarCognito('InitiateAuth', {
+    AuthFlow: 'USER_PASSWORD_AUTH',
+    ClientId: CONFIG.CLIENT_ID,
+    AuthParameters: { USERNAME: usuario, PASSWORD: senha }
+  });
+
+  if (resposta.ChallengeName === 'NEW_PASSWORD_REQUIRED') {
+    const novaSenha = window.prompt('Primeiro acesso: crie uma nova senha com pelo menos 8 caracteres, maiúscula, minúscula e número:');
+    if (!novaSenha) throw new Error('Troca de senha cancelada.');
+    resposta = await chamarCognito('RespondToAuthChallenge', {
+      ChallengeName: 'NEW_PASSWORD_REQUIRED',
+      ClientId: CONFIG.CLIENT_ID,
+      Session: resposta.Session,
+      ChallengeResponses: {
+        USERNAME: resposta.ChallengeParameters?.USER_ID_FOR_SRP || usuario,
+        NEW_PASSWORD: novaSenha
+      }
+    });
+  }
+
+  if (!resposta.AuthenticationResult?.AccessToken) throw new Error('O Cognito não devolveu os tokens esperados.');
+  return resposta.AuthenticationResult;
+}
+
+async function chamarCognito(operacao, corpo) {
+  const resposta = await fetch(`https://cognito-idp.${CONFIG.AWS_REGION}.amazonaws.com/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': `AWSCognitoIdentityProviderService.${operacao}`
+    },
+    body: JSON.stringify(corpo)
+  });
+  const dados = await resposta.json();
+  if (!resposta.ok || dados.__type) {
+    const erro = new Error(dados.message || dados.Message || 'Falha na autenticação Cognito.');
+    erro.code = String(dados.__type || resposta.status).split('#').pop();
+    throw erro;
+  }
+  return dados;
+}
+
+function traduzirErroCognito(erro) {
+  const codigo = erro.code || '';
+  if (codigo.includes('NotAuthorizedException')) return 'E-mail ou senha incorretos.';
+  if (codigo.includes('UserNotFoundException')) return 'Usuário não encontrado no Cognito.';
+  if (codigo.includes('PasswordResetRequiredException')) return 'É necessário redefinir a senha no Cognito.';
+  if (codigo.includes('UserNotConfirmedException')) return 'Confirme o usuário antes de entrar.';
+  return erro.message || 'Não foi possível autenticar no Amazon Cognito.';
+}
+
+function validarConfiguracao() {
+  const campos = ['AWS_REGION', 'USER_POOL_ID', 'CLIENT_ID', 'WEBSOCKET_URL'];
+  const faltando = campos.filter(campo => !CONFIG[campo] || String(CONFIG[campo]).includes('COLE_AQUI'));
+  if (faltando.length) throw new Error(`Preencha ${faltando.join(', ')} no arquivo config.js.`);
 }
 
 function abrirLogin() {
@@ -291,7 +376,6 @@ function abrirLogin() {
   const modal = document.querySelector('[data-login-modal]');
   modal.hidden = false;
   document.body.classList.add('modal-open');
-  setTimeout(renderizarBotaoGoogle, 60);
   modal.querySelector('input')?.focus();
 }
 
@@ -310,10 +394,7 @@ function exigirAutenticacao() {
   document.body.classList.add('auth-required', 'modal-open');
   telaLogin.hidden = false;
   if (location.hash !== '#login') history.replaceState(null, '', '#login');
-  setTimeout(() => {
-    renderizarBotaoGoogle();
-    telaLogin.querySelector('input')?.focus();
-  }, 60);
+  setTimeout(() => telaLogin.querySelector('input')?.focus(), 60);
 }
 
 function liberarAplicacao() {
@@ -323,46 +404,10 @@ function liberarAplicacao() {
 
 function concluirAutenticacao() {
   liberarAplicacao();
-  history.replaceState(null, '', '#inicio');
-  exibirView('inicio');
+  history.replaceState(null, '', '#chat');
+  exibirView('chat');
+  conectarWebSocket();
 }
-
-window.inicializarGoogleSignIn = function inicializarGoogleSignIn() {
-  if (!window.google?.accounts?.id) return;
-  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: window.handleGoogleCredential, ux_mode: 'popup' });
-  googlePronto = true;
-  if (!document.querySelector('[data-login-modal]')?.hidden) renderizarBotaoGoogle();
-};
-
-function renderizarBotaoGoogle() {
-  const container = document.querySelector('#google-signin-button');
-  if (!googlePronto || !container) return;
-  container.replaceChildren();
-  const largura = Math.max(240, Math.min(360, container.clientWidth || 360));
-  google.accounts.id.renderButton(container, { type: 'standard', theme: 'outline', size: 'large', text: 'signin_with', shape: 'rectangular', logo_alignment: 'left', width: largura, locale: 'pt-BR' });
-}
-
-window.handleGoogleCredential = function handleGoogleCredential(response) {
-  if (!response?.credential) return mostrarMensagem('O Google não retornou o token.', 'erro');
-  try {
-    const payload = decodificarPayloadJwt(response.credential);
-    const emissorValido = ['https://accounts.google.com', 'accounts.google.com'].includes(payload.iss);
-    if (!emissorValido || payload.aud !== GOOGLE_CLIENT_ID || Number(payload.exp) * 1000 <= Date.now()) throw new Error('Token incompatível com este aplicativo.');
-
-    console.group('Campus Fácil — autenticação federada Google');
-    console.log('GOOGLE_ID_TOKEN_JWT:', response.credential);
-    console.log('Payload decodificado:', payload);
-    console.table({ emissor: payload.iss, audiencia: payload.aud, email: payload.email, expiracao: new Date(Number(payload.exp) * 1000).toLocaleString('pt-BR') });
-    console.groupEnd();
-
-    salvarUsuario({ nome: payload.name || 'Usuário Google', email: payload.email || '', emissor: payload.iss });
-    concluirAutenticacao();
-    mostrarMensagem('Conta Google autenticada com sucesso.');
-  } catch (erro) {
-    console.error('Falha ao processar o token do Google:', erro);
-    mostrarMensagem('Não foi possível validar o login Google.', 'erro');
-  }
-};
 
 function decodificarPayloadJwt(token) {
   const parte = token.split('.')[1];
@@ -377,8 +422,32 @@ function salvarUsuario(perfil) {
   atualizarUsuario();
 }
 
+function salvarTokensCognito(resultado) {
+  sessionStorage.setItem('campusFacilTokens', JSON.stringify({
+    accessToken: resultado.AccessToken,
+    idToken: resultado.IdToken,
+    refreshToken: resultado.RefreshToken || '',
+    expiraEm: Date.now() + Number(resultado.ExpiresIn || 3600) * 1000
+  }));
+}
+
+function obterTokensCognito() {
+  try { return JSON.parse(sessionStorage.getItem('campusFacilTokens')); } catch { return null; }
+}
+
 function obterUsuario() {
-  try { return JSON.parse(sessionStorage.getItem('campusFacilSessao')); } catch { return null; }
+  try {
+    const perfil = JSON.parse(sessionStorage.getItem('campusFacilSessao'));
+    const tokens = obterTokensCognito();
+    if (!perfil || !tokens?.accessToken || Number(tokens.expiraEm) <= Date.now()) return null;
+    return perfil;
+  } catch { return null; }
+}
+
+function limparSessaoCognito() {
+  sessionStorage.removeItem('campusFacilSessao');
+  sessionStorage.removeItem('campusFacilTokens');
+  localStorage.removeItem('campusFacilPerfil');
 }
 
 function atualizarUsuario() {
@@ -393,6 +462,117 @@ function atualizarUsuario() {
   definirTexto('[data-profile-initials]', iniciais);
   definirTexto('[data-profile-name]', perfil.nome);
   definirTexto('[data-profile-email]', perfil.email || 'Conta autenticada');
+}
+
+function iniciarChat() {
+  document.querySelector('[data-chat-form]')?.addEventListener('submit', event => {
+    event.preventDefault();
+    const campo = document.querySelector('#chat-pergunta');
+    const pergunta = campo.value.trim();
+    if (!pergunta) return;
+    if (!socketChat || socketChat.readyState !== WebSocket.OPEN) {
+      conectarWebSocket();
+      return mostrarMensagem('Aguarde a conexão WebSocket ficar ativa.', 'info');
+    }
+
+    adicionarMensagemChat('user', pergunta);
+    adicionarAguardandoChat();
+    const mensagem = { action: 'perguntar', mensagem: pergunta, enviadoEm: new Date().toISOString() };
+    socketChat.send(JSON.stringify(mensagem));
+    console.log('MENSAGEM_ENVIADA_PARA_LAMBDA:', mensagem);
+    campo.value = '';
+    campo.focus();
+  });
+}
+
+function conectarWebSocket() {
+  const tokens = obterTokensCognito();
+  if (!tokens?.accessToken || !obterUsuario()) return;
+  if (socketChat && [WebSocket.OPEN, WebSocket.CONNECTING].includes(socketChat.readyState)) return;
+
+  try {
+    validarConfiguracao();
+    encerramentoIntencional = false;
+    atualizarStatusChat('connecting', 'Conectando...');
+    const separador = CONFIG.WEBSOCKET_URL.includes('?') ? '&' : '?';
+    const urlAutenticada = `${CONFIG.WEBSOCKET_URL}${separador}token=${encodeURIComponent(tokens.accessToken)}`;
+    socketChat = new WebSocket(urlAutenticada);
+
+    socketChat.addEventListener('open', () => {
+      atualizarStatusChat('connected', 'WebSocket conectado');
+      console.log('WEBSOCKET_CONECTADO:', CONFIG.WEBSOCKET_URL);
+      console.log('WEBSOCKET_AUTENTICADO_COM_COGNITO:', true);
+    });
+
+    socketChat.addEventListener('message', event => {
+      document.querySelector('[data-chat-waiting]')?.remove();
+      try {
+        const dados = JSON.parse(event.data);
+        console.log('RESPOSTA_RECEBIDA_DA_LAMBDA:', dados);
+        if (dados.type === 'erro') adicionarMensagemChat('error', dados.mensagem || 'Não foi possível gerar a resposta.');
+        else adicionarMensagemChat('assistant', dados.resposta || dados.mensagem || event.data);
+      } catch {
+        adicionarMensagemChat('assistant', event.data);
+      }
+    });
+
+    socketChat.addEventListener('error', erro => {
+      console.error('ERRO_WEBSOCKET:', erro);
+      atualizarStatusChat('disconnected', 'Erro na conexão');
+    });
+
+    socketChat.addEventListener('close', event => {
+      socketChat = null;
+      atualizarStatusChat('disconnected', `Desconectado (${event.code})`);
+      console.log('WEBSOCKET_ENCERRADO:', { code: event.code, reason: event.reason });
+      if (!encerramentoIntencional && obterUsuario()) {
+        clearTimeout(reconexaoChat);
+        reconexaoChat = setTimeout(conectarWebSocket, 3000);
+      }
+    });
+  } catch (erro) {
+    console.error('Falha ao abrir WebSocket:', erro);
+    atualizarStatusChat('disconnected', 'Configuração pendente');
+    mostrarMensagem(erro.message, 'erro');
+  }
+}
+
+function encerrarWebSocket() {
+  encerramentoIntencional = true;
+  clearTimeout(reconexaoChat);
+  if (socketChat && socketChat.readyState < WebSocket.CLOSING) socketChat.close(1000, 'Logout');
+  socketChat = null;
+  atualizarStatusChat('disconnected', 'Desconectado');
+}
+
+function atualizarStatusChat(classe, texto) {
+  const status = document.querySelector('[data-chat-status]');
+  if (!status) return;
+  status.className = `chat-connection ${classe}`;
+  status.innerHTML = `<i></i> ${escaparHtml(texto)}`;
+}
+
+function adicionarMensagemChat(tipo, texto) {
+  const lista = document.querySelector('[data-chat-messages]');
+  if (!lista) return;
+  const artigo = document.createElement('article');
+  artigo.className = `chat-message ${tipo}`;
+  const rotulo = tipo === 'user' ? 'Você' : tipo === 'error' ? 'Erro' : 'Assistente do Campus';
+  const avatar = tipo === 'user' ? obterIniciais(obterUsuario()?.nome || 'Você') : tipo === 'error' ? '!' : 'IA';
+  artigo.innerHTML = `<span class="chat-avatar">${escaparHtml(avatar)}</span><div><strong>${rotulo}</strong><p>${escaparHtml(texto)}</p></div>`;
+  lista.appendChild(artigo);
+  lista.scrollTop = lista.scrollHeight;
+}
+
+function adicionarAguardandoChat() {
+  document.querySelector('[data-chat-waiting]')?.remove();
+  const lista = document.querySelector('[data-chat-messages]');
+  const artigo = document.createElement('article');
+  artigo.className = 'chat-message assistant waiting';
+  artigo.dataset.chatWaiting = '';
+  artigo.innerHTML = '<span class="chat-avatar">IA</span><div><strong>Assistente do Campus</strong><p><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></p></div>';
+  lista.appendChild(artigo);
+  lista.scrollTop = lista.scrollHeight;
 }
 
 function iniciarSugestoes() {

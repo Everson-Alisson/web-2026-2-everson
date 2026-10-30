@@ -647,6 +647,38 @@ button.text-link { border: 0; background: transparent; cursor: pointer; }
 .app-modal-card h2 { padding-right: 35px; }
 .app-modal-card .google-button-container { min-height: 44px; }
 
+/* Chat autenticado: Cognito → WebSocket → Lambda → Gemini */
+.app-chat-view { min-height: calc(100vh - 76px); background: #edf3f6; }
+.chat-heading { align-items: center; }
+.chat-connection { display: inline-flex; align-items: center; gap: 8px; padding: 9px 13px; border-radius: 999px; font-size: 13px; font-weight: 800; white-space: nowrap; }
+.chat-connection i { width: 9px; height: 9px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 4px currentColor; opacity: .72; }
+.chat-connection.connected { color: #166b48; background: #dff5ea; }
+.chat-connection.connecting { color: #8a6818; background: #fff2ca; }
+.chat-connection.disconnected { color: #a33d3d; background: #fde5e5; }
+.chat-card { max-width: 900px; margin-inline: auto; overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: var(--white); box-shadow: var(--shadow-md); }
+.chat-messages { height: min(58vh, 560px); min-height: 390px; overflow-y: auto; display: flex; flex-direction: column; gap: 17px; padding: 28px; background: linear-gradient(180deg, #f8fbfc, #eef4f6); }
+.chat-message { max-width: 78%; display: flex; align-items: flex-start; gap: 11px; }
+.chat-message.user { align-self: flex-end; flex-direction: row-reverse; }
+.chat-avatar { width: 38px; height: 38px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 11px; background: var(--navy-800); color: var(--white); font-size: 12px; font-weight: 900; }
+.chat-message.user .chat-avatar { background: var(--blue-600); }
+.chat-message.error .chat-avatar { background: var(--red-600); }
+.chat-message > div { padding: 13px 15px; border: 1px solid var(--line); border-radius: 5px 16px 16px 16px; background: var(--white); box-shadow: var(--shadow-sm); }
+.chat-message.user > div { border-color: #176f98; border-radius: 16px 5px 16px 16px; background: var(--blue-700); color: var(--white); }
+.chat-message.error > div { border-color: #efb7b7; background: #fff0f0; }
+.chat-message strong { display: block; margin-bottom: 4px; font-size: 12px; }
+.chat-message p { margin: 0; white-space: pre-wrap; line-height: 1.55; }
+.chat-form { display: flex; gap: 10px; padding: 17px; border-top: 1px solid var(--line); background: var(--white); }
+.chat-form input { min-width: 0; height: 50px; flex: 1; border: 1px solid var(--line); border-radius: 11px; padding: 0 15px; outline: 0; }
+.chat-form input:focus { border-color: var(--blue-600); box-shadow: 0 0 0 3px rgba(22,132,178,.12); }
+.chat-technical { display: block; padding: 0 18px 16px; color: var(--muted); text-align: center; }
+.typing-dot { width: 7px; height: 7px; display: inline-block; margin: 0 2px; border-radius: 50%; background: var(--blue-600); animation: chat-typing .9s infinite alternate; }
+.typing-dot:nth-child(2) { animation-delay: .18s; }
+.typing-dot:nth-child(3) { animation-delay: .36s; }
+@keyframes chat-typing { to { opacity: .22; transform: translateY(-3px); } }
+.cognito-login-badge { display: grid; gap: 3px; margin-top: 22px; padding: 14px; border: 1px solid #cbdbe5; border-radius: 11px; background: #eef6fa; color: var(--navy-800); }
+.cognito-login-badge strong { font-size: 14px; }
+.cognito-login-badge span { color: var(--muted); font-size: 12px; line-height: 1.45; }
+
 /* Tela inicial de autenticação */
 body.auth-required .app-header,
 body.auth-required .app-main,
@@ -776,6 +808,12 @@ body.auth-required .app-auth-card .modal-close { display: none; }
   .modal-backdrop { padding: 12px; }
   .app-modal-card { max-height: calc(100vh - 24px); padding: 26px 20px; }
   .toast { left: 12px; right: 12px; bottom: 12px; max-width: none; }
+  .chat-heading { align-items: flex-start; }
+  .chat-messages { min-height: 420px; height: 56vh; padding: 17px 13px; }
+  .chat-message { max-width: 92%; }
+  .chat-form { display: grid; }
+  .chat-form .btn { width: 100%; }
+  .chat-technical { font-size: 11px; }
 }
 
 @media (max-width: 390px) {
