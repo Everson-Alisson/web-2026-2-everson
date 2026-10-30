@@ -264,10 +264,11 @@ function iniciarLogin() {
   document.querySelector('[data-login-modal]')?.addEventListener('click', event => { if (event.target === event.currentTarget) fecharLogin(); });
   document.querySelector('[data-login-form]')?.addEventListener('submit', async event => {
     event.preventDefault();
+    const formulario = event.currentTarget;
     const email = document.querySelector('#login-email');
     const senha = document.querySelector('#login-senha');
     const botao = document.querySelector('[data-login-submit]');
-    limparErros(event.currentTarget);
+    limparErros(formulario);
     let valido = true;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) { adicionarErro(email, 'Informe um e-mail válido.'); valido = false; }
     if (senha.value.length < 8) { adicionarErro(senha, 'A senha deve ter pelo menos 8 caracteres.'); valido = false; }
@@ -289,7 +290,7 @@ function iniciarLogin() {
       console.log('COGNITO_ID_TOKEN_JWT:', resultado.IdToken);
       console.log('Payload do ID token:', payload);
       console.groupEnd();
-      event.currentTarget.reset();
+      formulario.reset();
       concluirAutenticacao();
       mostrarMensagem('Autenticação Cognito concluída com sucesso.');
     } catch (erro) {
